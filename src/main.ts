@@ -8,7 +8,8 @@ import {ENEMIES_SPAWN_RATE, FIRE_RATE, TIME_SCALE} from './constants';
 import './style.css';
 
 (async () => {
-
+  console.log('what');
+  
   const optionalClientId = "optionalClientId"; 
   // When not provided in authUrl, a default will be used.
   const connection = new Ably.Realtime.Promise({ authUrl: `/.netlify/functions
