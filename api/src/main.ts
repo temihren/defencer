@@ -12,7 +12,7 @@ import './style.css';
   
   const optionalClientId = "optionalClientId"; 
   // When not provided in authUrl, a default will be used.
-  const connection = new Ably.Realtime.Promise({ authUrl: `../../.netlify/functions
+  const connection = new Ably.Realtime.Promise({ authUrl: `/netlifunctions
   //ably-token-request?clientId=${optionalClientId}` });
   const channel = connection.channels.get("some-channel-name");
 
