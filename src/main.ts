@@ -6,7 +6,7 @@ import {PlayerInstance, EnemyInstance, Bullet} from './units';
 import {randomInRange, generateId} from './utils';
 import {ENEMIES_SPAWN_RATE, FIRE_RATE, TIME_SCALE} from './constants';
 
-const player1 = new PlayerInstance({
+export const player1 = new PlayerInstance({
   position: {x: 100, y: canvas.height - 110},
   size: {x: 100, y: 100},
 });
@@ -21,15 +21,16 @@ const buttonsPressed: {[key: string]: boolean} = {};
 const mousePosition = {x: 0, y: 0};
 
 setInterval(() => {
-  const newEnemy = new EnemyInstance({
-    position: {
+  if (enemies.length < 10) {
+    const newEnemy = new EnemyInstance({
+      position: {
+        x: randomInRange(0, (canvas.width - 100)),
+        y: randomInRange(0, (canvas.height - 100))},
+      size: {x: 100, y: 100},
+    });
+    enemies.push({id: generateId(), instance: newEnemy});
+  }
 
-      x: randomInRange(100, (canvas.width - 100)),
-      y: randomInRange(100, (canvas.height - 100))},
-    size: {x: 100, y: 100},
-  });
-
-  enemies.push({id: generateId(), instance: newEnemy});
 }, (1000 / ENEMIES_SPAWN_RATE));
 
 let jumpsCount = 0;
@@ -37,7 +38,7 @@ const onKeyDown = (e: KeyboardEvent) => {
   buttonsPressed[e.key] = true;
 
   if (e.key === ' ') {
-    if (jumpsCount < 2) {
+    if (jumpsCount < 1) {
       jumpsCount += 1;
       player1.velocity.y = -20;
     }
@@ -58,17 +59,28 @@ canvas.addEventListener('mousedown', onMouseDown);
 canvas.addEventListener('mouseup', onMouseUp);
 canvas.addEventListener('mousemove', onMouseMove);
 
-const shoot = throttle(() => {
+export const createBullet = ({initialPosition, target, color, origin}: any) => {
   const bullet1 = new Bullet({
+    initialPosition: initialPosition,
+    target: target,
+    id: generateId(),
+    color,
+    origin,
+  });
+
+   bullets.push({instance: bullet1, id: generateId()});
+};
+
+const shoot = throttle(() => {
+  createBullet({
     initialPosition: {
       x: (player1.position.x + (player1.size.x / 2)),
       y: (player1.position.y + (player1.size.y / 2)),
     },
     target: {x: mousePosition.x, y: mousePosition.y},
-    id: generateId(),
+    color: 'black',
+    origin: 'player',
   });
-
-   bullets.push({instance: bullet1, id: generateId()});
 }, (1000 / FIRE_RATE), {trailing: false} );
 
 const processActiveKeys = () => {
@@ -89,7 +101,7 @@ const processActiveKeys = () => {
     }
   }
 
-  if ((player1.position.y + player1.size.y) > canvas.height && jumpsCount > 0) {
+  if ((player1.position.y + player1.size.y) >= (canvas.height - 20) && jumpsCount > 0) {
     jumpsCount = 0;
   }
 

@@ -16,4 +16,6 @@ export interface IBullet {
     initialPosition: {x: number, y: number};
     target: {x: number, y: number};
     id: number;
+    color: string;
+    origin: string;
 }

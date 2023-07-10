@@ -1,6 +1,6 @@
-import {BULLET_SIZE, BULLET_SPEED, GRAVITY, TIME_SCALE} from "./constants";
+import {BULLET_SIZE, BULLET_SPEED, ENEMIES_SHOOTING_RATE, GRAVITY, TIME_SCALE} from "./constants";
 import {ctx, canvas} from "./init";
-import {enemies, killEnemy} from "./main";
+import {createBullet, enemies, killEnemy, player1} from "./main";
 import {IBody, IPlayer, IEnemy, IBullet} from "./types";
 
 export class BodyInstance {
@@ -76,20 +76,43 @@ export class PlayerInstance extends BodyInstance {
 export class EnemyInstance extends StaticBodyInstance {
     constructor({color, ...props}: IEnemy) {
         super(props);
+        this.timer = 0;
     }
 
+    timer: 0;
+
     render() {
+        if (this.timer > (60 / ENEMIES_SHOOTING_RATE)) {
+            this.timer = 0;
+
+            createBullet({
+                initialPosition: {
+                    x: this.position.x + (this.size.x / 2),
+                    y: this.position.y + (this.size.y / 2),
+                },
+                target: {
+                    x: player1.position.x,
+                    y: player1.position.y,
+                },
+                color: 'red',
+                origin: 'enemy',
+            });
+        }
+        this.timer += 1;
+
         ctx.fillStyle = 'red';
         this.draw();
     }
 }
 
 export class Bullet {
-    constructor({initialPosition, target, id}: IBullet) {
+    constructor({initialPosition, target, id, color, origin}: IBullet) {
         this.initialPosition = initialPosition;
         this.position = initialPosition;
         this.target = target;
         this.id = id;
+        this.color = color;
+        this.origin = origin;
 
         this.vector = Math.atan2(
             target.y - initialPosition.y,
@@ -104,12 +127,14 @@ export class Bullet {
     id = 0;
     distances = [0, 0];
     vector = 0;
+    color = '';
+    origin = '';
 
     draw() {
         this.position.x += Math.cos(this.vector) * BULLET_SPEED;
         this.position.y += Math.sin(this.vector) * BULLET_SPEED;
 
-        ctx.fillStyle = 'black';
+        ctx.fillStyle = this.color;
         ctx.fillRect(
             this.position.x,
             this.position.y,
@@ -123,6 +148,7 @@ export class Bullet {
         
         enemies.forEach(({instance, id}) => {
             if (
+                this.origin === 'player' &&
                 this.position.x >= instance.position.x &&
                 this.position.x <= (instance.position.x + instance.size.x) &&
                 this.position.y >= instance.position.y &&
