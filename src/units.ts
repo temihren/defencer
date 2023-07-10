@@ -1,7 +1,7 @@
 import {BULLET_SIZE, BULLET_SPEED, ENEMIES_SHOOTING_RATE, GRAVITY, TIME_SCALE} from "./constants";
 import {ctx, canvas} from "./init";
 import {createBullet, enemies, killEnemy, player1} from "./main";
-import {IBody, IPlayer, IEnemy, IBullet} from "./types";
+import {type IBody, type IPlayer, type IEnemy, type IBullet} from "./types.d";
 
 export class BodyInstance {
     constructor({position, size, velocity}: IBody) {
