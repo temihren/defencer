@@ -17,8 +17,11 @@ import './style.css';
   const channel = connection.channels.get("some-channel-name");
 
   await channel.subscribe((msg: Types.Message) => {
-      console.log("Ably message received", msg);
-      document.getElementById("response").innerHTML += "<br />" + JSON.stringify(msg);
+    console.log("Ably message received", msg);
+    const res = document.getElementById("response");
+    if (res) {
+      res.innerHTML += "<br />" + JSON.stringify(msg);
+    }
   });
 
   channel.publish("hello-world-message", { message: "Hello world!" });
