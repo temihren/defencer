@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@netlify/plugin-lighthouse": "^4.1.1",
     "@types/lodash.throttle": "^4.1.7",
     "typescript": "^5.0.2",
     "vite": "^4.4.0"
