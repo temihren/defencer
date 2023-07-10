@@ -1,33 +1,27 @@
 import throttle from 'lodash.throttle';
 import { Types } from "ably";
 import * as Ably from "ably/promises";
-
-(async () => {
-
-    const optionalClientId = "optionalClientId"; 
-    // When not provided in authUrl, a default will be used.
-    const connection = new Ably.Realtime.Promise({ authUrl: `/.netlify/functions
-    //ably-token-request?clientId=${optionalClientId}` });
-    const channel = connection.channels.get("some-channel-name");
-
-    await channel.subscribe((msg: Types.Message) => {
-        console.log("Ably message received", msg);
-        document.getElementById("response").innerHTML += "<br />" + JSON.stringify(msg);
-    });
-
-    channel.publish("hello-world-message", { message: "Hello world!" });
-})();
-
-
-
-
-
-
-import './style.css';
 import {canvas, ctx} from './init';
 import {PlayerInstance, EnemyInstance, Bullet} from './units';
 import {randomInRange, generateId} from './utils';
 import {ENEMIES_SPAWN_RATE, FIRE_RATE, TIME_SCALE} from './constants';
+import './style.css';
+
+(async () => {
+
+  const optionalClientId = "optionalClientId"; 
+  // When not provided in authUrl, a default will be used.
+  const connection = new Ably.Realtime.Promise({ authUrl: `/.netlify/functions
+  //ably-token-request?clientId=${optionalClientId}` });
+  const channel = connection.channels.get("some-channel-name");
+
+  await channel.subscribe((msg: Types.Message) => {
+      console.log("Ably message received", msg);
+      document.getElementById("response").innerHTML += "<br />" + JSON.stringify(msg);
+  });
+
+  channel.publish("hello-world-message", { message: "Hello world!" });
+})();
 
 export const player1 = new PlayerInstance({
   position: {x: 100, y: canvas.height - 110},
