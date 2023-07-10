@@ -8,7 +8,7 @@ import {ENEMIES_SPAWN_RATE, FIRE_RATE, TIME_SCALE} from './constants';
 import './style.css';
 
 (async () => {
-  console.log('what');
+  console.log('what2');
   
   const optionalClientId = "optionalClientId"; 
   // When not provided in authUrl, a default will be used.
