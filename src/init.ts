@@ -1,9 +1,10 @@
 const init = () => {
     const canvasElement = document.createElement('canvas');
-    document.body.append(canvasElement);
-    canvasElement.width = document.body.clientWidth;
-    canvasElement.height = document.body.clientHeight + 1;
+    canvasElement.width = window.innerWidth;
+    canvasElement.height = window.innerHeight + 1;
 
+    document.body.append(canvasElement);
+    
     return canvasElement;
 };
 

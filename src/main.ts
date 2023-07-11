@@ -2,9 +2,9 @@ import throttle from 'lodash.throttle';
 import { Types } from "ably";
 import * as Ably from "ably/promises";
 import {canvas, ctx} from './init';
-import {PlayerInstance, EnemyInstance, Bullet} from './units';
-import {randomInRange, generateId} from './utils';
-import {ENEMIES_SPAWN_RATE, FIRE_RATE, TIME_SCALE} from './constants';
+import {PlayerInstance, Bullet} from './units';
+import {generateId, drawRect} from './utils';
+import {FIRE_RATE} from './constants';
 import './style.css';
 
 (async () => {
@@ -22,46 +22,26 @@ import './style.css';
   });
 
   channel.publish("hello-world-message", { message: "Hello world!" });
-})();
-
-export const player1 = new PlayerInstance({
-  position: {x: 100, y: canvas.height - 110},
-  size: {x: 100, y: 100},
 });
 
-export let enemies: {instance: EnemyInstance, id: number}[] = [];
-export const killEnemy = (enemyId: number) => {
-  enemies = enemies.filter(e => e.id !== enemyId);
-};
+export const centerOfPlayer = {x: (canvas.width / 2) - 16, y: (canvas.height / 2) - 16}
+export const currentPlayerPosition = {x: (canvas.width / 2) - 16, y: (canvas.height / 2) - 16};
+
+export const player1 = new PlayerInstance({
+  position: currentPlayerPosition,
+  size: {x: 32, y: 32},
+  color: 'black',
+});
+
 let bullets: {instance: Bullet, id: number}[] = [];
 
 const buttonsPressed: {[key: string]: boolean} = {};
 const mousePosition = {x: 0, y: 0};
 
-setInterval(() => {
-  if (enemies.length < 10) {
-    const newEnemy = new EnemyInstance({
-      position: {
-        x: randomInRange(0, (canvas.width - 100)),
-        y: randomInRange(0, (canvas.height - 100))},
-      size: {x: 100, y: 100},
-    });
-    enemies.push({id: generateId(), instance: newEnemy});
-  }
-
-}, (1000 / ENEMIES_SPAWN_RATE));
-
-let jumpsCount = 0;
 const onKeyDown = (e: KeyboardEvent) => {
   buttonsPressed[e.key] = true;
-
-  if (e.key === ' ') {
-    if (jumpsCount < 1) {
-      jumpsCount += 1;
-      player1.velocity.y = -20;
-    }
-  }
 };
+
 const onKeyUp = (e: KeyboardEvent) => {buttonsPressed[e.key] = false};
 
 const onMouseDown = () => {buttonsPressed.mainMouse = true};
@@ -92,42 +72,62 @@ export const createBullet = ({initialPosition, target, color, origin}: any) => {
 const shoot = throttle(() => {
   createBullet({
     initialPosition: {
-      x: (player1.position.x + (player1.size.x / 2)),
-      y: (player1.position.y + (player1.size.y / 2)),
+      x: (centerOfPlayer.x + currentPlayerPosition.x) + (player1.size.x / 2),
+      y: (centerOfPlayer.y + currentPlayerPosition.y) + (player1.size.y / 2),
     },
-    target: {x: mousePosition.x, y: mousePosition.y},
-    color: 'black',
+    target: {
+      x: mousePosition.x + currentPlayerPosition.x,
+      y: mousePosition.y + currentPlayerPosition.y,
+    },
+    color: 'red',
     origin: 'player',
   });
 }, (1000 / FIRE_RATE), {trailing: false} );
 
 const processActiveKeys = () => {
-  const xVel = player1.velocity.x * TIME_SCALE;
-  if (buttonsPressed.d) {
-    player1.velocity.x = 10;
+  if (buttonsPressed.d || buttonsPressed.в) {
+    currentPlayerPosition.x += 10;
   }
-  if (buttonsPressed.a) {
-    player1.velocity.x = -10;
+  if (buttonsPressed.a || buttonsPressed.ф) {
+    currentPlayerPosition.x -= 10;
   }
-
-  if (!buttonsPressed.a && !buttonsPressed.d) {
-    if (xVel > 0 && xVel !== 0) {
-      player1.velocity.x = 0;
-    }
-    if (xVel < 0 && xVel !== 0) {
-      player1.velocity.x = 0;
-    }
+  if (buttonsPressed.w || buttonsPressed.ц) {
+    currentPlayerPosition.y -= 10;
   }
-
-  if ((player1.position.y + player1.size.y) >= (canvas.height - 20) && jumpsCount > 0) {
-    jumpsCount = 0;
+  if (buttonsPressed.s || buttonsPressed.ы) {
+    currentPlayerPosition.y += 10;
   }
 
   if (buttonsPressed.mainMouse) shoot();
 };
 
-const runAGame = () => {
-  ctx.clearRect(0, 0, 5000, 5000);
+let frames: number = 0;
+let msPrev = 0;
+const msPerFrame = 1000 / 60;
+
+function runAGame(currentTime: number) {
+  window.requestAnimationFrame(runAGame);
+  const msNow = currentTime;
+  const msPassed = msNow - msPrev;
+  if (msPassed < msPerFrame) return;
+
+  const excessTime = msPassed % msPerFrame;
+  msPrev = msNow - excessTime;
+
+  ctx.clearRect(0, 0, 7000, 7000);
+
+  //Frame
+  [...Array(60).keys()].forEach((x) => {
+    [...Array(60).keys()].forEach((y) => {
+      drawRect(
+        (x*100),
+        (y*100),
+        10,
+        10,
+        'grey',
+      );
+    })
+  });
 
   if (bullets.length > 0) bullets.forEach((bullet) => {
     bullet.instance.render({
@@ -137,13 +137,10 @@ const runAGame = () => {
     })
   });
 
-  enemies.forEach(enemy => enemy.instance.render());
-
+  processActiveKeys();
   player1.render();
 
-  processActiveKeys();
-
-  requestAnimationFrame(runAGame);
+  frames++;
 }
 
-runAGame();
+runAGame(0);

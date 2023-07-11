@@ -1,107 +1,26 @@
-import {BULLET_SIZE, BULLET_SPEED, ENEMIES_SHOOTING_RATE, GRAVITY, TIME_SCALE} from "./constants";
+import {BULLET_SIZE, BULLET_SPEED} from "./constants";
 import {ctx, canvas} from "./init";
-import {createBullet, enemies, killEnemy, player1} from "./main";
-import {type IBody, type IPlayer, type IEnemy, type IBullet} from "./types.d";
+import {centerOfPlayer, currentPlayerPosition} from "./main";
+import {type IPlayer, type IBullet} from "./types.d";
+import { drawRect } from "./utils";
 
-export class BodyInstance {
-    constructor({position, size, velocity}: IBody) {
-        this.position = position;
+export class PlayerInstance {
+    constructor({color, size}: IPlayer) {
         this.size = size;
-        if (velocity) this.velocity = velocity;
+        this.color = color || 'black';
     }
 
     size = {x: 0, y: 0};
-    velocity = {x: 0, y: 0};
-    position = {x: 0, y: 0};
+    color = 'black';
 
-    draw() {
-        const xVel =  this.velocity.x * TIME_SCALE;
-        const yVel =  this.velocity.y * TIME_SCALE;
-        this.position.y += yVel;
-
-        if (this.position.y + this.size.y + yVel >= canvas.height) {
-            this.velocity.y = 0;
-        } else {
-            this.velocity.y += GRAVITY * TIME_SCALE;
-        }
-
-        if (
-            (this.position.x + xVel) >= 0 &&
-            ((this.position.x + this.size.x) + xVel) <= canvas.width
-        ) {
-            this.position.x += xVel;
-        } else {
-            this.velocity.x = 0;
-        }
-
+    render() {
+        ctx.fillStyle = this.color;
         ctx.fillRect(
-            this.position.x,
-            this.position.y,
+            centerOfPlayer.x,
+            centerOfPlayer.y,
             this.size.x,
             this.size.y,
         );
-    }
-}
-
-class StaticBodyInstance {
-    constructor({position, size}: IBody) {
-        this.position = position;
-        this.size = size;
-    }
-
-    size = {x: 0, y: 0};
-    position = {x: 0, y: 0};
-
-    draw() {
-        ctx.fillRect(
-            this.position.x,
-            this.position.y,
-            this.size.x,
-            this.size.y,
-        );
-    }
-}
-
-export class PlayerInstance extends BodyInstance {
-    constructor({color, ...props}: IPlayer) {
-        super(props);
-    }
-
-    render() {
-        ctx.fillStyle = 'black';
-        this.draw();
-    }
-}
-
-export class EnemyInstance extends StaticBodyInstance {
-    constructor({color, ...props}: IEnemy) {
-        super(props);
-        this.timer = 0;
-    }
-
-    timer: 0;
-
-    render() {
-        if (this.timer > (60 / ENEMIES_SHOOTING_RATE)) {
-            this.timer = 0;
-
-            createBullet({
-                initialPosition: {
-                    x: this.position.x + (this.size.x / 2),
-                    y: this.position.y + (this.size.y / 2),
-                },
-                target: {
-                    x: player1.position.x,
-                    y: player1.position.y,
-                },
-                color: 'red',
-                origin: 'enemy',
-            });
-        }
-        this.timer += 1;
-
-        ctx.fillStyle = 'red';
-        this.draw();
     }
 }
 
@@ -134,36 +53,23 @@ export class Bullet {
         this.position.x += Math.cos(this.vector) * BULLET_SPEED;
         this.position.y += Math.sin(this.vector) * BULLET_SPEED;
 
-        ctx.fillStyle = this.color;
-        ctx.fillRect(
+        drawRect(
             this.position.x,
             this.position.y,
             this.size.x,
             this.size.y,
+            this.color,
         );
     }
 
     render({onDestroy}: {onDestroy: Function}) {
         this.draw();
-        
-        enemies.forEach(({instance, id}) => {
-            if (
-                this.origin === 'player' &&
-                this.position.x >= instance.position.x &&
-                this.position.x <= (instance.position.x + instance.size.x) &&
-                this.position.y >= instance.position.y &&
-                this.position.y <= (instance.position.y + instance.size.y)
-            ) {
-                onDestroy(this.id);
-                killEnemy(id);
-            }
-        });
 
         if (
-            this.position.x > canvas.width ||
-            this.position.y > canvas.height ||
-            this.position.x < 0 ||
-            this.position.y < 0
+            (this.position.x - currentPlayerPosition.x) > canvas.width ||
+            (this.position.y - currentPlayerPosition.y) > canvas.height ||
+            (this.position.x - currentPlayerPosition.x) < 0 ||
+            (this.position.y - currentPlayerPosition.y) < 0
         ) {
             onDestroy(this.id);
         }
