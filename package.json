@@ -16,6 +16,9 @@
   "dependencies": {
     "@netlify/functions": "^1.6.0",
     "ably": "^1.2.41",
-    "lodash.throttle": "^4.1.1"
+    "express": "^4.19.2",
+    "lodash.throttle": "^4.1.1",
+    "serverless-http": "^3.2.0",
+    "socket.io": "^4.7.5"
   }
 }
