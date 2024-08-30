@@ -16,6 +16,6 @@
   "dependencies": {
     "@netlify/functions": "^1.6.0",
     "ably": "^1.2.41",
-    "lodash.throttle": "^4.1.1"
+    "lodash": "^4.17.21"
   }
 }
