@@ -23,7 +23,7 @@ async function publishSubscribe() {
 	// Connect to Ably with your API key
 	const ably = new Ably.Realtime("QkkECg.htzwfA:-JKnynbGVgeOl69GksRHI568lB1RQzX0CQ9_TExQbm0")
 	ably.connection.once("connected", () => {
-	console.log("Connected to Ably!")
+		console.log("welcome");
 	})
 
 	// Create a channel called 'get-started' and register a listener to subscribe to all messages with the name 'first'
@@ -38,14 +38,15 @@ async function publishSubscribe() {
 //   }, 5000);
 }
 
-// await publishSubscribe();
+await publishSubscribe();
 
-// await channel.subscribe("first", (message) => {
-// console.log("Message received: " + message.data)
-// });
+await channel.subscribe("player_connected", (message) => {
+	console.log("Message received: " + message.data)
+});
 
-// // Publish a message with the name 'first' and the contents 'Here is my first message!'
-// await channel.publish("first", "Here is my first message!")
+const notifyOthers = async (message: string) => {
+	await channel.publish("player_connected", message);
+}
 
 const myPlayer = localStorage.getItem('me');
 
@@ -59,6 +60,8 @@ axios.get(`${conf.url}/getPlayers/`).then((res) => {
 		console.log(resp.data);
 		
 		localStorage.setItem('me', resp.data);
+
+		notifyOthers(resp.data);
 	});
 	
 });

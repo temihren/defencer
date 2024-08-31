@@ -15,11 +15,14 @@ app.get("/getPlayers", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-    console.log(req.query.player);
-    const newPlayer = R();
-    players.push(newPlayer);
-
-    res.json(newPlayer);
+    if (req.query.player && players.includes(req.query.player)) {
+        res.json(req.query.player);
+    } else {
+        const newPlayer = R();
+        players.push(newPlayer);
+    
+        res.json(newPlayer);
+    }
 });
 
 app.listen(3001, () => console.log("Server ready on port 3001."));
