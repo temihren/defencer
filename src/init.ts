@@ -40,28 +40,31 @@ async function publishSubscribe() {
 
 await publishSubscribe();
 
-await channel.subscribe("player_connected", (message) => {
-	console.log("Message received: " + message.data)
-});
-
-const notifyOthers = async (message: string) => {
-	await channel.publish("player_connected", message);
-}
-
-const myPlayer = localStorage.getItem('me');
-
-axios.get(`${conf.url}/getPlayers/`).then((res) => {
-	console.log(res.data);
-
-	let params: {params: {player: string}} | undefined = undefined;
-
-	if (myPlayer) params = {params: {player: myPlayer}};
-	axios.get(`${conf.url}/login`, params).then((resp) => {
-		console.log(resp.data);
-		
-		localStorage.setItem('me', resp.data);
-
-		notifyOthers(resp.data);
+if (channel) {
+	await channel.subscribe("player_connected", (message) => {
+		console.log("Message received: " + message.data)
 	});
 	
-});
+	const notifyOthers = async (message: string) => {
+		await channel.publish("player_connected", message);
+	}
+	
+	const myPlayer = localStorage.getItem('me');
+	
+	axios.get(`${conf.url}/getPlayers/`).then((res) => {
+		console.log(res.data);
+	
+		let params: {params: {player: string}} | undefined = undefined;
+	
+		if (myPlayer) params = {params: {player: myPlayer}};
+		axios.get(`${conf.url}/login`, params).then((resp) => {
+			console.log(resp.data);
+			
+			localStorage.setItem('me', resp.data);
+	
+			notifyOthers(resp.data);
+		});
+		
+	});
+}
+
