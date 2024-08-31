@@ -1,28 +1,9 @@
 import throttle from 'lodash.throttle';
-import { Types } from "ably";
-import * as Ably from "ably/promises";
 import {canvas, ctx} from './init';
 import {PlayerInstance, Bullet} from './units';
 import {generateId, drawRect} from './utils';
 import {FIRE_RATE} from './constants';
 import './style.css';
-
-(async () => {
-  // When not provided in authUrl, a default will be used.
-  const optionalClientId = "optionalClientId"; // When not provided in authUrl, a default will be used.
-  const ably = new Ably.Realtime.Promise({ authUrl: `/api/ably-token-request?clientId=${optionalClientId}` });
-  const channel = ably.channels.get("some-channel-name");
-
-  await channel.subscribe((msg: Types.Message) => {
-    console.log("Ably message received", msg);
-    const res = document.getElementById("response");
-    if (res) {
-      res.innerHTML += "<br />" + JSON.stringify(msg);
-    }
-  });
-
-  channel.publish("hello-world-message", { message: "Hello world!" });
-});
 
 export const centerOfPlayer = {x: (canvas.width / 2) - 16, y: (canvas.height / 2) - 16}
 export const currentPlayerPosition = {x: (canvas.width / 2) - 16, y: (canvas.height / 2) - 16};
