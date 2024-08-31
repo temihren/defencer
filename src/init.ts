@@ -10,3 +10,4 @@ const init = () => {
 
 export const canvas = init();
 export const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
