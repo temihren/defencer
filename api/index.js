@@ -1,21 +1,23 @@
-import  express from "express";
+import express from "express";
+import cors from "cors";
 const app = express();
-import http from "http"
 
-http.createServer(app);
+app.use(cors());
 
 const players = [];
 
-const R = () => Math.floor(Math.random() + 10);
+const R = () => '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
 
 app.use(express.static('public'));
 
 app.get("/getPlayers", (req, res) => {
+    console.log(players);
     res.json(players);
 });
 
 app.get("/login", (req, res) => {
-    const newPlayer = `#${R()}${R()}${R()}${R()}${R()}${R()}`;
+    console.log(req.query.player);
+    const newPlayer = R();
     players.push(newPlayer);
 
     res.json(newPlayer);
@@ -23,6 +25,6 @@ app.get("/login", (req, res) => {
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
-app.listen(3001, () => console.log("Server ready on port 3000."));
+app.listen(3001, () => console.log("Server ready on port 3001."));
 
 export default app;

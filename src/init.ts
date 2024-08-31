@@ -1,6 +1,8 @@
 import Ably from 'ably';
 import axios from 'axios';
 
+import conf from '../config';
+
 const init = () => {
 	const canvasElement = document.createElement('canvas');
 	canvasElement.width = window.innerWidth;
@@ -36,17 +38,27 @@ async function publishSubscribe() {
 //   }, 5000);
 }
 
-await publishSubscribe();
+// await publishSubscribe();
 
-if (channel) {
-	await channel.subscribe("first", (message) => {
-	console.log("Message received: " + message.data)
+// await channel.subscribe("first", (message) => {
+// console.log("Message received: " + message.data)
+// });
+
+// // Publish a message with the name 'first' and the contents 'Here is my first message!'
+// await channel.publish("first", "Here is my first message!")
+
+const myPlayer = localStorage.getItem('me');
+
+axios.get(`${conf.url}/getPlayers/`).then((res) => {
+	console.log(res.data);
+
+	let params: {params: {player: string}} | undefined = undefined;
+
+	if (myPlayer) params = {params: {player: myPlayer}};
+	axios.get(`${conf.url}/login`, params).then((resp) => {
+		console.log(resp.data);
+		
+		localStorage.setItem('me', resp.data);
 	});
 	
-	// Publish a message with the name 'first' and the contents 'Here is my first message!'
-	await channel.publish("first", "Here is my first message!")
-}
-
-axios.get('/getPlayers').then((res) => {
-	console.log(res);
 });
