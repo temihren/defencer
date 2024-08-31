@@ -46,7 +46,9 @@ if (channel) {
 	});
 	
 	const notifyOthers = async (message: string) => {
-		await channel.publish("player_connected", message);
+		if (channel) {
+			await channel.publish("player_connected", message);
+		}
 	}
 	
 	const myPlayer = localStorage.getItem('me');
