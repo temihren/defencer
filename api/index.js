@@ -1,11 +1,14 @@
-import express from "express";
-
+import  express from "express";
 const app = express();
-const http = require("http").createServer(app);
+import http from "http"
 
-const players: string[] = [];
+http.createServer(app);
+
+const players = [];
 
 const R = () => Math.floor(Math.random() + 10);
+
+app.use(express.static('public'));
 
 app.get("/getPlayers", (req, res) => {
     res.json(players);
@@ -20,6 +23,6 @@ app.get("/login", (req, res) => {
 
 app.get("/", (req, res) => res.send("Express on Vercel"));
 
-app.listen(3000, () => console.log("Server ready on port 3000."));
+app.listen(3001, () => console.log("Server ready on port 3000."));
 
-module.exports = app;
+export default app;
